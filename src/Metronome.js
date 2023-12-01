@@ -18,63 +18,33 @@ class Metronome {
 
   constructor() {
     this.#audioContext = new window.AudioContext();
-    this.#oscillator = this.#audioContext.createOscillator();
-    this.#oscillator.connect(this.#audioContext.destination);
 
     this.#setComponent();
     this.#tempoSliderListner();
+    this.#setBtnListner();
   }
 
   // 메트로놈의 실행과 정지. 두 상태를 담당하는 메서드에요.
   playAndStop() {
     if (this.#isPlaying) {
       // 소리를 중단하고, 버튼모양을 재생모양으로 바꾼 후 메서드를 종료한다.
-      console.log(this);
       this.#stopSound();
       this.#isPlaying = false;
       this.#changePlayBtn(this.#isPlaying);
+      this.#setOscillator();
       return;
     }
 
     // 재생버튼의 모양을 바꿔요.
     this.#isPlaying = true;
-    this.#changePlayBtn(this.#isPlaying);
+    this.#changePlayBtn();
 
     // 응답성 향상을 위해 소리를 먼저 재생 후에 인터벌을 실행해요.
+    // 오실레이터가 start가 한번밖에 호출될 수 없어서 여기서 오실레이터를 새로만들고 실행시켜요.
+    this.#setOscillator();
+    this.#oscillator.start();
     this.#makeSound();
     this.#playInterval();
-  }
-
-  #changePlayBtn(isPlaying) {
-    const PLAY_BUTTON = `<i class="fa-solid fa-play"></i>`;
-    const STOP_BUTTON = `<i class="fa-solid fa-stop" aria-hidden="true"></i>`;
-
-    this.#playBtn.innerHTML = isPlaying ? STOP_BUTTON : PLAY_BUTTON;
-  }
-
-  #setComponent() {
-    // 뷰가 자주 바뀌니까 사실 이 객체가 접근할 게 아니라 외부에서 주입받아야해요.
-    // 외부에서 전달받을 때를 대비해서. 각각의 컴포넌트가 최대한 독립적으로 동작할 수 있도록 설계해야 해요.
-    // 모든 컴포넌트를 전달받지 않고 최소한으로 동작할 수 있어야 하거든요.
-    this.#plusOneBtn = document.querySelector(".plusOneStep");
-    this.#plusFiveBtn = document.querySelector(".plusFiveStep");
-    this.#minusOneBtn = document.querySelector(".minusOneStep");
-    this.#minusFiveBtn = document.querySelector(".minusFiveStep");
-    this.#tempoSlider = document.querySelector(".tempoSlider");
-    this.#tempoIndicator = document.querySelector(".tempo");
-    this.#tempoSignIndicator = document.querySelector(".beatIndicator");
-    this.#playBtn = document.querySelector(".play");
-    // 검사 완료. 모든 컴포넌트가 정상적으로 등록되었어요.
-  }
-
-  #makeSound() {
-    this.#oscillator.frequency.setValueAtTime(500, this.#audioContext.currentTime);
-    this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime + 0.05);
-  }
-
-  #stopSound() {
-    this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime);
-    clearInterval(this.#intervalId);
   }
 
   #playInterval() {
@@ -88,9 +58,63 @@ class Metronome {
     }, bpm);
   }
 
-  #minusBtnListner() {}
+  #makeSound() {
+    this.#oscillator.frequency.setValueAtTime(500, this.#audioContext.currentTime);
+    this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime + 0.05);
+  }
 
-  #plusBtnListner() {}
+  #stopSound() {
+    this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime);
+    clearInterval(this.#intervalId);
+  }
+
+  // 아래는 버튼들의 동작을 정의하고있어요.
+  #setBtnListner() {
+    const onMinusClick = (e) => {
+      this.#tempoIndicator.value -= e.target.textContent;
+      this.#changeTempoSign();
+      this.#playInterval();
+    };
+
+    const onPlusClick = (e) => {
+      // 눌린 버튼의 값
+      const BUTTON_VALUE = parseInt(e.target.textContent);
+      const PLUS_ONE = 1;
+      const PLUS_FIVE = 5;
+
+      // 이전 템포
+      const prevVal = parseInt(this.#tempoIndicator.value);
+
+      // 빠르기말 표시기
+      this.#changeTempoSign();
+      this.#playInterval();
+
+      // 템포 표시기의 숫자를 변경해요.
+      this.#tempoIndicator.value = String(BUTTON_VALUE === PLUS_ONE ? prevVal + PLUS_ONE : prevVal + PLUS_FIVE);
+    };
+
+    // 재생버튼의 리스너를 설정해요.
+    this.#playBtn.onclick = () => {
+      this.playAndStop();
+    };
+
+    // 마이너스 버튼 리스너를 설정했어요.
+    this.#minusOneBtn.onclick = (e) => {
+      onMinusClick(e);
+    };
+    this.#minusFiveBtn.onclick = (e) => {
+      onMinusClick(e);
+    };
+
+    // 플러스버튼 리스너를 설정해요.
+    this.#plusOneBtn.onclick = (e) => {
+      onPlusClick(e);
+    };
+
+    this.#plusFiveBtn.onclick = (e) => {
+      onPlusClick(e);
+    };
+  }
 
   #tempoSliderListner() {
     // 템포슬라이더의 동작.
@@ -106,6 +130,7 @@ class Metronome {
     };
   }
 
+  // 콜백함수들을 통해서 실행될 동작들이에요.
   #changeTempoSign() {
     // 빠르기말 표시기를 변경하는 메서드에요.
     const tempo = parseInt(this.#tempoIndicator.value);
@@ -128,5 +153,33 @@ class Metronome {
         changeTempoSignature("Presto");
         break;
     }
+  }
+
+  #changePlayBtn() {
+    const PLAY_BUTTON = `<i class="fa-solid fa-play"></i>`;
+    const STOP_BUTTON = `<i class="fa-solid fa-stop" aria-hidden="true"></i>`;
+
+    this.#playBtn.innerHTML = this.#isPlaying ? STOP_BUTTON : PLAY_BUTTON;
+  }
+
+  // 컴포넌트들의 설정을 위한 메서드들입니다.
+  #setOscillator() {
+    this.#oscillator = this.#audioContext.createOscillator();
+    this.#oscillator.connect(this.#audioContext.destination);
+  }
+
+  #setComponent() {
+    // 뷰가 자주 바뀌니까 사실 이 객체가 접근할 게 아니라 외부에서 주입받아야해요.
+    // 외부에서 전달받을 때를 대비해서. 각각의 컴포넌트가 최대한 독립적으로 동작할 수 있도록 설계해야 해요.
+    // 모든 컴포넌트를 전달받지 않고 최소한으로 동작할 수 있어야 하거든요.
+    this.#plusOneBtn = document.querySelector(".plusOneStep");
+    this.#plusFiveBtn = document.querySelector(".plusFiveStep");
+    this.#minusOneBtn = document.querySelector(".minusOneStep");
+    this.#minusFiveBtn = document.querySelector(".minusFiveStep");
+    this.#tempoSlider = document.querySelector(".tempoSlider");
+    this.#tempoIndicator = document.querySelector(".tempo");
+    this.#tempoSignIndicator = document.querySelector(".beatIndicator");
+    this.#playBtn = document.querySelector(".play");
+    // 검사 완료. 모든 컴포넌트가 정상적으로 등록되었어요.
   }
 }
