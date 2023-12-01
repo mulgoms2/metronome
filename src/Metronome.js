@@ -14,6 +14,7 @@ class Metronome {
   #tempoSignatureIndicator;
 
   #isPlaying = false;
+  #intervalId;
 
   constructor() {
     this.#audioContext = new window.AudioContext();
@@ -24,8 +25,8 @@ class Metronome {
   }
 
   // 메트로놈의 실행과 정지. 두 상태를 담당하는 메서드에요.
-  playAndStop() {
-    if (isPlaying) {
+  playAndStop(instance) {
+    if (this.#isPlaying) {
       // 소리를 중단하고, 버튼모양을 재생모양으로 바꾼 후 메서드를 종료한다.
       stopSound();
       this.#isPlaying = false;
@@ -38,14 +39,15 @@ class Metronome {
     this.#changePlayBtn(this.#isPlaying);
 
     // 응답성 향상을 위해 소리를 먼저 재생 후에 인터벌을 실행해요.
-    playSound();
-    playInterval();
+    this.makeSound();
+    this.#playInterval(instance);
   }
 
   #changePlayBtn(isPlaying) {
     const PLAY_BUTTON = `<i class="fa-solid fa-play"></i>`;
     const STOP_BUTTON = `<i class="fa-solid fa-stop" aria-hidden="true"></i>`;
 
+    console.log("here");
     this.#playBtn.innerHTML = isPlaying ? STOP_BUTTON : PLAY_BUTTON;
   }
 
@@ -64,7 +66,20 @@ class Metronome {
     // 검사 완료. 모든 컴포넌트가 정상적으로 등록되었어요.
   }
 
-  #playInterval() {}
+  makeSound() {
+    this.#oscillator.frequency.setValueAtTime(500, this.#audioContext.currentTime);
+    this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime + 0.05);
+  }
+
+  #playInterval(instance) {
+    if (this.#intervalId) clearInterval(this.#intervalId);
+
+    let bpm = 60000 / parseInt(this.#tempoIndicator.value);
+
+    this.#intervalId = setInterval(function () {
+      instance.makeSound();
+    }, bpm);
+  }
 
   #minusBtnListner() {}
 
