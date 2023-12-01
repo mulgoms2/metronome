@@ -11,7 +11,7 @@ class Metronome {
   #playBtn;
 
   #tempoIndicator;
-  #tempoSignatureIndicator;
+  #tempoSignIndicator;
 
   #isPlaying = false;
   #intervalId;
@@ -22,32 +22,33 @@ class Metronome {
     this.#oscillator.connect(this.#audioContext.destination);
 
     this.#setComponent();
+    this.#tempoSliderListner();
   }
 
   // 메트로놈의 실행과 정지. 두 상태를 담당하는 메서드에요.
-  playAndStop(instance) {
+  playAndStop() {
     if (this.#isPlaying) {
       // 소리를 중단하고, 버튼모양을 재생모양으로 바꾼 후 메서드를 종료한다.
-      stopSound();
+      console.log(this);
+      this.#stopSound();
       this.#isPlaying = false;
       this.#changePlayBtn(this.#isPlaying);
       return;
     }
 
     // 재생버튼의 모양을 바꿔요.
-    this.#isPlaying = false;
+    this.#isPlaying = true;
     this.#changePlayBtn(this.#isPlaying);
 
     // 응답성 향상을 위해 소리를 먼저 재생 후에 인터벌을 실행해요.
-    this.makeSound();
-    this.#playInterval(instance);
+    this.#makeSound();
+    this.#playInterval();
   }
 
   #changePlayBtn(isPlaying) {
     const PLAY_BUTTON = `<i class="fa-solid fa-play"></i>`;
     const STOP_BUTTON = `<i class="fa-solid fa-stop" aria-hidden="true"></i>`;
 
-    console.log("here");
     this.#playBtn.innerHTML = isPlaying ? STOP_BUTTON : PLAY_BUTTON;
   }
 
@@ -61,23 +62,29 @@ class Metronome {
     this.#minusFiveBtn = document.querySelector(".minusFiveStep");
     this.#tempoSlider = document.querySelector(".tempoSlider");
     this.#tempoIndicator = document.querySelector(".tempo");
-    this.#tempoSignatureIndicator = document.querySelector(".beatIndicator");
+    this.#tempoSignIndicator = document.querySelector(".beatIndicator");
     this.#playBtn = document.querySelector(".play");
     // 검사 완료. 모든 컴포넌트가 정상적으로 등록되었어요.
   }
 
-  makeSound() {
+  #makeSound() {
     this.#oscillator.frequency.setValueAtTime(500, this.#audioContext.currentTime);
     this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime + 0.05);
   }
 
-  #playInterval(instance) {
+  #stopSound() {
+    this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime);
+    clearInterval(this.#intervalId);
+  }
+
+  #playInterval() {
     if (this.#intervalId) clearInterval(this.#intervalId);
 
     let bpm = 60000 / parseInt(this.#tempoIndicator.value);
 
-    this.#intervalId = setInterval(function () {
-      instance.makeSound();
+    // 참조를 잃어버려서 생긴 문제였다. That bind 람다식으로 해결 가능하다. 람다로 해결했어요.
+    this.#intervalId = setInterval(() => {
+      this.#makeSound();
     }, bpm);
   }
 
@@ -87,5 +94,39 @@ class Metronome {
 
   #tempoSliderListner() {
     // 템포슬라이더의 동작.
+
+    this.#tempoSlider.oninput = () => {
+      // 템포 표시기의 숫자를 변경시켜요.
+      document.querySelector(".tempo").value = document.querySelector(".tempoSlider").value;
+
+      // 소리가 재생중이었다면 새로운 템포로 재생시켜요.
+      if (this.#isPlaying) this.#playInterval();
+
+      this.#changeTempoSign();
+    };
+  }
+
+  #changeTempoSign() {
+    // 빠르기말 표시기를 변경하는 메서드에요.
+    const tempo = parseInt(this.#tempoIndicator.value);
+
+    const changeTempoSignature = (text) => {
+      this.#tempoSignIndicator.innerHTML = text;
+    };
+
+    switch (true) {
+      case tempo < 60:
+        changeTempoSignature("Andante");
+        break;
+      case tempo < 120:
+        changeTempoSignature("Moderato");
+        break;
+      case tempo < 180:
+        changeTempoSignature("Allegro");
+        break;
+      case tempo < 220:
+        changeTempoSignature("Presto");
+        break;
+    }
   }
 }
