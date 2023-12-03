@@ -10,6 +10,8 @@ class Metronome {
   #tempoSlider;
   #playBtn;
 
+  #ledIndicator;
+  #prevIndicator;
   #tempoIndicator;
   #tempoSignIndicator;
 
@@ -32,6 +34,7 @@ class Metronome {
       this.#isPlaying = false;
       this.#changePlayBtn(this.#isPlaying);
       this.#setOscillator();
+      this.#initLed();
       return;
     }
 
@@ -55,6 +58,7 @@ class Metronome {
     // 참조를 잃어버려서 생긴 문제였다. That bind 람다식으로 해결 가능하다. 람다로 해결했어요.
     this.#intervalId = setInterval(() => {
       this.#makeSound();
+      this.#changeLed();
     }, bpm);
   }
 
@@ -78,19 +82,19 @@ class Metronome {
 
     const onPlusClick = (e) => {
       // 눌린 버튼의 값
-      const BUTTON_VALUE = parseInt(e.target.textContent);
+      const CUR_VAL = parseInt(e.target.textContent);
       const PLUS_ONE = 1;
       const PLUS_FIVE = 5;
 
       // 이전 템포
-      const prevVal = parseInt(this.#tempoIndicator.value);
+      const prevVal = this.#tempoIndicator.valueAsNumber;
 
       // 빠르기말 표시기
       this.#changeTempoSign();
       this.#playInterval();
 
       // 템포 표시기의 숫자를 변경해요.
-      this.#tempoIndicator.value = String(BUTTON_VALUE === PLUS_ONE ? prevVal + PLUS_ONE : prevVal + PLUS_FIVE);
+      this.#tempoIndicator.valueAsNumber = CUR_VAL === PLUS_ONE ? prevVal + PLUS_ONE : prevVal + PLUS_FIVE;
     };
 
     // 재생버튼의 리스너를 설정해요.
@@ -118,22 +122,33 @@ class Metronome {
 
   #tempoSliderListner() {
     // 템포슬라이더의 동작.
+    const defaultBehavior = () => {
+      // 템포 인디케이터에 표시되는 숫자를 바꿔요
+      this.#tempoIndicator.value = this.#tempoSlider.value;
+      // 소리가 재생중이라면 템포를 변경해줘요.
+      if (this.#isPlaying) this.#playInterval();
+      // 모데라토 - 알레그레토 - 프레스토
+      this.#changeTempoSign();
+    };
 
     this.#tempoSlider.oninput = () => {
-      // 템포 표시기의 숫자를 변경시켜요.
-      document.querySelector(".tempo").value = document.querySelector(".tempoSlider").value;
+      defaultBehavior();
+    };
 
-      // 소리가 재생중이었다면 새로운 템포로 재생시켜요.
-      if (this.#isPlaying) this.#playInterval();
-
-      this.#changeTempoSign();
+    this.#tempoSlider.onwheel = (e) => {
+      if (e.deltaY < 0) {
+        this.#tempoSlider.valueAsNumber += 1;
+      } else {
+        this.#tempoSlider.value -= 1;
+      }
+      defaultBehavior();
     };
   }
 
   // 콜백함수들을 통해서 실행될 동작들이에요.
   #changeTempoSign() {
     // 빠르기말 표시기를 변경하는 메서드에요.
-    const tempo = parseInt(this.#tempoIndicator.value);
+    const tempo = this.#tempoIndicator.valueAsNumber;
 
     const changeTempoSignature = (text) => {
       this.#tempoSignIndicator.innerHTML = text;
@@ -162,6 +177,26 @@ class Metronome {
     this.#playBtn.innerHTML = this.#isPlaying ? STOP_BUTTON : PLAY_BUTTON;
   }
 
+  // 호출될때마다 다음 led의 색상을 변경해요.
+  #initLed() {
+    this.#prevIndicator.style.color = "aquamarine";
+    this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
+  }
+  #changeLed() {
+    // 이전 led 색상 초기화. 아쿠아마린.
+    if (this.#prevIndicator !== undefined) this.#prevIndicator.style.color = "aquamarine";
+    // 현재 led 색상 변경.
+    this.#ledIndicator.style.color = "yellow";
+
+    // led 인디케이터 커서를 이동.
+    this.#prevIndicator = this.#ledIndicator;
+    this.#ledIndicator = this.#ledIndicator.nextElementSibling;
+
+    if (this.#ledIndicator === null) {
+      this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
+    }
+  }
+
   // 컴포넌트들의 설정을 위한 메서드들입니다.
   #setOscillator() {
     this.#oscillator = this.#audioContext.createOscillator();
@@ -180,6 +215,8 @@ class Metronome {
     this.#tempoIndicator = document.querySelector(".tempo");
     this.#tempoSignIndicator = document.querySelector(".beatIndicator");
     this.#playBtn = document.querySelector(".play");
+    this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
+
     // 검사 완료. 모든 컴포넌트가 정상적으로 등록되었어요.
   }
 }
