@@ -179,23 +179,24 @@ class Metronome {
 
   // led 초기화 메서드
   #initLed() {
+    this.#prevIndicator.classList.remove("flash");
     this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
   }
 
   #changeLed() {
     // 이전 led 색상 초기화. 아쿠아마린.
-    // if (this.#prevIndicator !== undefined) this.#prevIndicator.classList.remove("flash");
-    if (this.#ledIndicator.previousElementSibling !== null)
-      this.#ledIndicator.previousElementSibling.classList.remove("flash");
+    if (this.#prevIndicator !== undefined) this.#prevIndicator.classList.remove("flash");
 
     // 현재 led 색상 변경.
     this.#ledIndicator.classList.add("flash");
 
     // led 인디케이터 커서를 이동.
     this.#prevIndicator = this.#ledIndicator;
+
     this.#ledIndicator = this.#ledIndicator.nextElementSibling;
 
-    if (this.#ledIndicator === null) this.#initLed();
+    // 다음 형제요소가 없을때. 마지막 led일때 작동해요.
+    if (this.#ledIndicator === null) this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
   }
 
   // 컴포넌트들의 설정을 위한 메서드들입니다.
