@@ -33,7 +33,9 @@ class Metronome {
       this.#stopSound();
       this.#isPlaying = false;
       this.#changePlayBtn(this.#isPlaying);
+      // 오실레이터가 일회용이라, 멈춤버튼이 눌렸을때 미리 새로 만들어놔요.
       this.#setOscillator();
+      // 정지하면 led를 처음으로 초기화해요.
       this.#initLed();
       return;
     }
@@ -43,10 +45,11 @@ class Metronome {
     this.#changePlayBtn();
 
     // 응답성 향상을 위해 소리를 먼저 재생 후에 인터벌을 실행해요.
-    // 오실레이터가 start가 한번밖에 호출될 수 없어서 여기서 오실레이터를 새로만들고 실행시켜요.
+    // this.#audioContext.resume();
     this.#setOscillator();
     this.#oscillator.start();
     this.#makeSound();
+    this.#changeLed();
     this.#playInterval();
   }
 
@@ -69,6 +72,8 @@ class Metronome {
 
   #stopSound() {
     this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime);
+    this.#oscillator.stop();
+    // this.#audioContext.suspend();
     clearInterval(this.#intervalId);
   }
 
