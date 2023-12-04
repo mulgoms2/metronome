@@ -75,26 +75,37 @@ class Metronome {
   // 아래는 버튼들의 동작을 정의하고있어요.
   #setBtnListner() {
     const onMinusClick = (e) => {
-      this.#tempoIndicator.value -= e.target.textContent;
+      const prevTempo = this.#tempoIndicator.valueAsNumber;
+      if (prevTempo <= 0) return;
+
+      // 눌린 버튼이 가진 값을 템포에서 빼요. 문자열의 빼기연산은 숫자로 변환되어 수행되어요.
+      this.#tempoIndicator.value -= e.target.innerText || e.target.parentElement.innerText;
+
+      this.#tempoSlider.value = prevTempo;
+
       this.#changeTempoSign();
       this.#playInterval();
     };
 
     const onPlusClick = (e) => {
       // 눌린 버튼의 값
-      const CUR_VAL = parseInt(e.target.textContent);
-      const PLUS_ONE = 1;
-      const PLUS_FIVE = 5;
+      const currTempo = parseInt(e.target.innerText || e.target.parentElement.innerText);
 
       // 이전 템포
-      const prevVal = this.#tempoIndicator.valueAsNumber;
+      const prevTempo = this.#tempoIndicator.valueAsNumber;
+
+      // 템포 슬라이더를 이동시켜요.
+      this.#tempoSlider.value = prevTempo;
+
+      // 한계 템포에요.
+      if (prevTempo >= 220) return;
 
       // 빠르기말 표시기
       this.#changeTempoSign();
       this.#playInterval();
 
       // 템포 표시기의 숫자를 변경해요.
-      this.#tempoIndicator.valueAsNumber = CUR_VAL === PLUS_ONE ? prevVal + PLUS_ONE : prevVal + PLUS_FIVE;
+      this.#tempoIndicator.valueAsNumber = currTempo === 1 ? prevTempo + 1 : prevTempo + 5;
     };
 
     // 재생버튼의 리스너를 설정해요.
@@ -103,21 +114,12 @@ class Metronome {
     };
 
     // 마이너스 버튼 리스너를 설정했어요.
-    this.#minusOneBtn.onclick = (e) => {
-      onMinusClick(e);
-    };
-    this.#minusFiveBtn.onclick = (e) => {
-      onMinusClick(e);
-    };
+    this.#minusOneBtn.onclick = onMinusClick;
+    this.#minusFiveBtn.onclick = onMinusClick;
 
     // 플러스버튼 리스너를 설정해요.
-    this.#plusOneBtn.onclick = (e) => {
-      onPlusClick(e);
-    };
-
-    this.#plusFiveBtn.onclick = (e) => {
-      onPlusClick(e);
-    };
+    this.#plusOneBtn.onclick = onPlusClick;
+    this.#plusFiveBtn.onclick = onPlusClick;
   }
 
   #tempoSliderListner() {
