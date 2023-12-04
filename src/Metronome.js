@@ -177,14 +177,15 @@ class Metronome {
     this.#playBtn.innerHTML = this.#isPlaying ? STOP_BUTTON : PLAY_BUTTON;
   }
 
-  // 호출될때마다 다음 led의 색상을 변경해요.
+  // led 초기화 메서드
   #initLed() {
-    this.#prevIndicator.style.color = "aquamarine";
     this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
   }
+
   #changeLed() {
     // 이전 led 색상 초기화. 아쿠아마린.
     if (this.#prevIndicator !== undefined) this.#prevIndicator.style.color = "aquamarine";
+
     // 현재 led 색상 변경.
     this.#ledIndicator.style.color = "yellow";
 
@@ -192,9 +193,7 @@ class Metronome {
     this.#prevIndicator = this.#ledIndicator;
     this.#ledIndicator = this.#ledIndicator.nextElementSibling;
 
-    if (this.#ledIndicator === null) {
-      this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
-    }
+    if (this.#ledIndicator === null) this.#initLed();
   }
 
   // 컴포넌트들의 설정을 위한 메서드들입니다.
