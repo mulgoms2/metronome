@@ -184,10 +184,12 @@ class Metronome {
 
   #changeLed() {
     // 이전 led 색상 초기화. 아쿠아마린.
-    if (this.#prevIndicator !== undefined) this.#prevIndicator.style.color = "aquamarine";
+    // if (this.#prevIndicator !== undefined) this.#prevIndicator.classList.remove("flash");
+    if (this.#ledIndicator.previousElementSibling !== null)
+      this.#ledIndicator.previousElementSibling.classList.remove("flash");
 
     // 현재 led 색상 변경.
-    this.#ledIndicator.style.color = "yellow";
+    this.#ledIndicator.classList.add("flash");
 
     // led 인디케이터 커서를 이동.
     this.#prevIndicator = this.#ledIndicator;
