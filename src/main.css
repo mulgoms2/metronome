@@ -67,11 +67,14 @@ body {
 .tempoContainer {
   grid-row: 1/4;
   grid-column: 1/4;
+
   display: flex;
   width: 97%;
   height: 80%;
-  justify-content: space-evenly;
-  align-items: center;
+
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-content: center;
   margin-top: 5px;
   background-color: whitesmoke;
   border-radius: 20px;
@@ -144,8 +147,8 @@ input[type="range"] {
   margin: 8px;
   height: 6px; /* 슬라이더 두께 */
   background-color: rgb(228, 228, 228); /* 슬라이더 색상 */
-
   accent-color: rgb(98, 165, 150); /* 슬라이더 헤드 */
+  outline: none;
 
   cursor: pointer;
   transition: 0.3s ease;
@@ -155,6 +158,15 @@ input[type="range"]:hover {
   background-color: rgb(202, 202, 202);
 
   transition: 0.3s ease;
+}
+
+#horizon {
+  z-index: 1;
+  width: 87%;
+  position: relative;
+
+  opacity: 0.5;
+  top: 34px;
 }
 
 .play {
