@@ -33,7 +33,9 @@ class Metronome {
       this.#stopSound();
       this.#isPlaying = false;
       this.#changePlayBtn(this.#isPlaying);
+      // 오실레이터가 일회용이라, 멈춤버튼이 눌렸을때 미리 새로 만들어놔요.
       this.#setOscillator();
+      // 정지하면 led를 처음으로 초기화해요.
       this.#initLed();
       return;
     }
@@ -43,10 +45,11 @@ class Metronome {
     this.#changePlayBtn();
 
     // 응답성 향상을 위해 소리를 먼저 재생 후에 인터벌을 실행해요.
-    // 오실레이터가 start가 한번밖에 호출될 수 없어서 여기서 오실레이터를 새로만들고 실행시켜요.
+    // this.#audioContext.resume();
     this.#setOscillator();
     this.#oscillator.start();
     this.#makeSound();
+    this.#changeLed();
     this.#playInterval();
   }
 
@@ -69,32 +72,45 @@ class Metronome {
 
   #stopSound() {
     this.#oscillator.frequency.setValueAtTime(0, this.#audioContext.currentTime);
+    this.#oscillator.stop();
+    // this.#audioContext.suspend();
     clearInterval(this.#intervalId);
   }
 
   // 아래는 버튼들의 동작을 정의하고있어요.
   #setBtnListner() {
     const onMinusClick = (e) => {
-      this.#tempoIndicator.value -= e.target.textContent;
+      const prevTempo = this.#tempoIndicator.valueAsNumber;
+      if (prevTempo <= 0) return;
+
+      // 눌린 버튼이 가진 값을 템포에서 빼요. 문자열의 빼기연산은 숫자로 변환되어 수행되어요.
+      this.#tempoIndicator.value -= e.target.innerText || e.target.parentElement.innerText;
+
+      this.#tempoSlider.value = prevTempo;
+
       this.#changeTempoSign();
       this.#playInterval();
     };
 
     const onPlusClick = (e) => {
       // 눌린 버튼의 값
-      const CUR_VAL = parseInt(e.target.textContent);
-      const PLUS_ONE = 1;
-      const PLUS_FIVE = 5;
+      const currTempo = parseInt(e.target.innerText || e.target.parentElement.innerText);
 
       // 이전 템포
-      const prevVal = this.#tempoIndicator.valueAsNumber;
+      const prevTempo = this.#tempoIndicator.valueAsNumber;
+
+      // 템포 슬라이더를 이동시켜요.
+      this.#tempoSlider.value = prevTempo;
+
+      // 한계 템포에요.
+      if (prevTempo >= 220) return;
 
       // 빠르기말 표시기
       this.#changeTempoSign();
       this.#playInterval();
 
       // 템포 표시기의 숫자를 변경해요.
-      this.#tempoIndicator.valueAsNumber = CUR_VAL === PLUS_ONE ? prevVal + PLUS_ONE : prevVal + PLUS_FIVE;
+      this.#tempoIndicator.valueAsNumber = currTempo === 1 ? prevTempo + 1 : prevTempo + 5;
     };
 
     // 재생버튼의 리스너를 설정해요.
@@ -103,21 +119,12 @@ class Metronome {
     };
 
     // 마이너스 버튼 리스너를 설정했어요.
-    this.#minusOneBtn.onclick = (e) => {
-      onMinusClick(e);
-    };
-    this.#minusFiveBtn.onclick = (e) => {
-      onMinusClick(e);
-    };
+    this.#minusOneBtn.onclick = onMinusClick;
+    this.#minusFiveBtn.onclick = onMinusClick;
 
     // 플러스버튼 리스너를 설정해요.
-    this.#plusOneBtn.onclick = (e) => {
-      onPlusClick(e);
-    };
-
-    this.#plusFiveBtn.onclick = (e) => {
-      onPlusClick(e);
-    };
+    this.#plusOneBtn.onclick = onPlusClick;
+    this.#plusFiveBtn.onclick = onPlusClick;
   }
 
   #tempoSliderListner() {
@@ -177,24 +184,26 @@ class Metronome {
     this.#playBtn.innerHTML = this.#isPlaying ? STOP_BUTTON : PLAY_BUTTON;
   }
 
-  // 호출될때마다 다음 led의 색상을 변경해요.
+  // led 초기화 메서드
   #initLed() {
-    this.#prevIndicator.style.color = "aquamarine";
+    this.#prevIndicator.classList.remove("flash");
     this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
   }
+
   #changeLed() {
     // 이전 led 색상 초기화. 아쿠아마린.
-    if (this.#prevIndicator !== undefined) this.#prevIndicator.style.color = "aquamarine";
+    if (this.#prevIndicator !== undefined) this.#prevIndicator.classList.remove("flash");
+
     // 현재 led 색상 변경.
-    this.#ledIndicator.style.color = "yellow";
+    this.#ledIndicator.classList.add("flash");
 
     // led 인디케이터 커서를 이동.
     this.#prevIndicator = this.#ledIndicator;
+
     this.#ledIndicator = this.#ledIndicator.nextElementSibling;
 
-    if (this.#ledIndicator === null) {
-      this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
-    }
+    // 다음 형제요소가 없을때. 마지막 led일때 작동해요.
+    if (this.#ledIndicator === null) this.#ledIndicator = document.querySelector(".indicator").firstElementChild;
   }
 
   // 컴포넌트들의 설정을 위한 메서드들입니다.
