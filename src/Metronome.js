@@ -153,7 +153,7 @@ class Metronome {
     };
 
     this.#tempoSlider.onwheel = (e) => {
-      if (e.deltaY < 0) {
+      if (e.deltaY > 0) {
         this.#tempoSlider.valueAsNumber += 1;
       } else {
         this.#tempoSlider.value -= 1;
