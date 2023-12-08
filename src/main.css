@@ -4,12 +4,15 @@ html {
 }
 
 body {
-  margin: 0;
-  width: 100%;
   height: 100%;
+  width: 100%;
+
+  margin: 0;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   background-color: rgb(70, 70, 70);
 
   -webkit-user-select: none;
@@ -20,50 +23,60 @@ body {
 
 /* 정지버튼 */
 #stop {
-  font-size: 60px;
   left: 0px;
+
+  font-size: 60px;
 }
 
 /* 메트로놈 전체  */
 .metronomeContainer {
   width: 400px;
   height: 600px;
-  background-color: rgb(30, 30, 30);
+
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  box-shadow: 1px 1px 30px grey;
+
+  background-color: rgb(30, 30, 30);
+
   border: 1px solid gray;
   border-radius: 20px;
-  box-shadow: 1px 1px 30px grey;
 }
 
 /* 상단 검정박스 전체 */
-.indicator {
-  height: 400px;
+.metronomeContainer .indicator {
   width: 100%;
-  font-size: 40px;
+  height: 400px;
+
   display: flex;
-  justify-content: space-evenly;
   align-items: center;
-  background: linear-gradient(30deg, rgb(0, 0, 0), rgb(76, 73, 73) 55%, rgb(0, 0, 0));
+  justify-content: space-evenly;
+
   color: aquamarine;
+  font-size: 40px;
+
+  background: linear-gradient(40deg, rgb(0, 0, 0), rgb(61, 59, 59) 75%, rgb(0, 0, 0));
+
   border-radius: 20px 20px 0 0;
 }
 
 /* led 인디케이터 */
-.indicator > i {
-  transition: 0.3s;
+.metronomeContainer .indicator > i.fa {
   text-shadow: 0px 0px 10px;
+
+  transition: 0.3s;
 }
 
-.indicator > .flash {
+.indicator > i.fa.flash {
   transition: 0.3s;
   color: gold;
   text-shadow: 0px 0px 30px;
 }
 
 /* 하부 전체 */
-.bottomContainer {
+.metronomeContainer .bottomContainer {
   display: grid;
   width: 100%;
   height: 100%;
@@ -76,7 +89,7 @@ body {
 }
 
 /* 중앙부 전체 */
-.tempoContainer {
+.metronomeContainer .bottomContainer .tempoContainer {
   width: 97%;
   height: 80%;
 
@@ -95,17 +108,13 @@ body {
   background-color: whitesmoke;
 }
 
-.tempoContainer p {
-  font-size: 20px;
-  padding: 8px;
-}
-
 /* 템포표시기와 슬라이더 */
-.tempoDisplay {
+.metronomeContainer .bottomContainer .tempoContainer .tempoDisplay {
+  width: 180px;
+
   grid-row: 2/3;
   grid-column: 2/3;
   display: flex;
-  width: 180px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -121,13 +130,16 @@ body {
 }
 
 .tempoDisplay .tempo {
-  text-align: center;
   border: none;
-  background-color: transparent;
+
   font-size: 50px;
+  text-align: center;
   color: rgba(58, 54, 54, 0.734);
-  cursor: default;
+
+  background-color: transparent;
+
   user-select: none;
+  cursor: default;
 }
 
 .tempoDisplay .tempoSlider {
@@ -183,14 +195,18 @@ body {
 
 /* 템포 슬라이더 */
 input[type="range"] {
-  appearance: none;
-  padding: 0px;
-  border-radius: 10px;
-  margin: 8px;
   height: 6px; /* 슬라이더 두께 */
-  background-color: rgb(228, 228, 228); /* 슬라이더 색상 */
+
+  margin: 8px;
+  padding: 0px;
+
+  appearance: none;
   accent-color: rgb(98, 165, 150); /* 슬라이더 헤드 */
   outline: none;
+
+  background-color: rgb(228, 228, 228); /* 슬라이더 색상 */
+
+  border-radius: 10px;
 
   cursor: pointer;
   transition: 0.3s ease;
