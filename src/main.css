@@ -18,14 +18,13 @@ body {
   user-select: none;
 }
 
-.play {
-  /*osition: relative; */
-}
+/* 정지버튼 */
 #stop {
-  font-size: 65px;
+  font-size: 60px;
   left: 0px;
 }
 
+/* 메트로놈 전체  */
 .metronomeContainer {
   width: 400px;
   height: 600px;
@@ -38,6 +37,7 @@ body {
   box-shadow: 1px 1px 30px grey;
 }
 
+/* 상단 검정박스 전체 */
 .indicator {
   height: 400px;
   width: 100%;
@@ -50,6 +50,7 @@ body {
   border-radius: 20px 20px 0 0;
 }
 
+/* led 인디케이터 */
 .indicator > i {
   transition: 0.3s;
   text-shadow: 0px 0px 10px;
@@ -61,6 +62,7 @@ body {
   text-shadow: 0px 0px 30px;
 }
 
+/* 하부 전체 */
 .bottomContainer {
   display: grid;
   width: 100%;
@@ -73,6 +75,7 @@ body {
   border-radius: 0 0 20px 20px;
 }
 
+/* 중앙부 전체 */
 .tempoContainer {
   grid-row: 1/4;
   grid-column: 1/4;
@@ -95,6 +98,8 @@ body {
   font-size: 20px;
   padding: 8px;
 }
+
+/* 템포표시기와 슬라이더 */
 .tempoDisplay {
   display: flex;
   width: 180px;
@@ -146,6 +151,15 @@ body {
 .tempoContainer p:hover {
   transition: 0.3s ease;
   background-color: darkgrey;
+}
+
+/* 마이너스 버튼들 */
+.minusTempo p::before {
+  content: "-";
+}
+
+.plusTempo p::before {
+  content: "+";
 }
 
 /* 템포 슬라이더 */

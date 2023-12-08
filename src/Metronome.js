@@ -80,37 +80,47 @@ class Metronome {
   // 아래는 버튼들의 동작을 정의하고있어요.
   #setBtnListner() {
     const onMinusClick = (e) => {
-      const prevTempo = this.#tempoIndicator.valueAsNumber;
-      if (prevTempo <= 0) return;
+      // 기존 템포
+      const currTempo = this.#tempoIndicator.valueAsNumber;
+      let targetTemp = currTempo - parseInt(e.target.innerText);
 
-      // 눌린 버튼이 가진 값을 템포에서 빼요. 문자열의 빼기연산은 숫자로 변환되어 수행되어요.
-      this.#tempoIndicator.value -= e.target.innerText || e.target.parentElement.innerText;
+      // 템포는 1 이상이 유지되어야 해요.
+      if (targetTemp <= 0) targetTemp = 1;
 
-      this.#tempoSlider.value = prevTempo;
+      // 템포인디케이터의 숫자를 내려요.
+      this.#tempoIndicator.valueAsNumber = targetTemp;
+      // 템포슬라이더를 이동시켜요.
+      this.#tempoSlider.valueAsNumber = targetTemp;
 
       this.#changeTempoSign();
-      this.#playInterval();
+
+      // 메트로놈이 실행중이었을 때만 템포 변경시 메트로놈 재실행
+      if (this.#isPlaying) {
+        this.#playInterval();
+      }
     };
 
     const onPlusClick = (e) => {
-      // 눌린 버튼의 값
-      const currTempo = parseInt(e.target.innerText || e.target.parentElement.innerText);
-
       // 이전 템포
       const prevTempo = this.#tempoIndicator.valueAsNumber;
 
-      // 템포 슬라이더를 이동시켜요.
-      this.#tempoSlider.value = prevTempo;
+      // 변경하려는 템포
+      let targetTemp = prevTempo + parseInt(e.target.innerText);
 
       // 한계 템포에요.
-      if (prevTempo >= 220) return;
+      if (targetTemp >= 220) targetTemp = 220;
+
+      // 템포 슬라이더를 바뀐 값으로 이동시켜요.
+      this.#tempoSlider.valueAsNumber = targetTemp;
+      this.#tempoIndicator.valueAsNumber = targetTemp;
 
       // 빠르기말 표시기
       this.#changeTempoSign();
-      this.#playInterval();
 
-      // 템포 표시기의 숫자를 변경해요.
-      this.#tempoIndicator.valueAsNumber = currTempo === 1 ? prevTempo + 1 : prevTempo + 5;
+      // 메트로놈이 실행중일때만 변경된 템포로 메트로놈을 재실행합니다.
+      if (this.#isPlaying) {
+        this.#playInterval();
+      }
     };
 
     // 재생버튼의 리스너를 설정해요.
