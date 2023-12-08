@@ -129,7 +129,7 @@ class Metronome {
 
   #tempoSliderListner() {
     // 템포슬라이더의 동작.
-    const defaultBehavior = () => {
+    const changeTempo = () => {
       // 템포 인디케이터에 표시되는 숫자를 바꿔요
       this.#tempoIndicator.value = this.#tempoSlider.value;
       // 소리가 재생중이라면 템포를 변경해줘요.
@@ -139,7 +139,7 @@ class Metronome {
     };
 
     this.#tempoSlider.oninput = () => {
-      defaultBehavior();
+      changeTempo();
     };
 
     this.#tempoSlider.onwheel = (e) => {
@@ -148,7 +148,7 @@ class Metronome {
       } else {
         this.#tempoSlider.value -= 1;
       }
-      defaultBehavior();
+      changeTempo();
     };
   }
 
@@ -158,7 +158,7 @@ class Metronome {
     const tempo = this.#tempoIndicator.valueAsNumber;
 
     const changeTempoSignature = (text) => {
-      this.#tempoSignIndicator.innerHTML = text;
+      this.#tempoSignIndicator.innerText = text;
     };
 
     switch (true) {
@@ -179,7 +179,7 @@ class Metronome {
 
   #changePlayBtn() {
     const PLAY_BUTTON = `<i class="fa-solid fa-play"></i>`;
-    const STOP_BUTTON = `<i class="fa-solid fa-stop" aria-hidden="true"></i>`;
+    const STOP_BUTTON = `<i id="stop"  class="fa-solid fa-stop" aria-hidden="true"></i>`;
 
     this.#playBtn.innerHTML = this.#isPlaying ? STOP_BUTTON : PLAY_BUTTON;
   }
