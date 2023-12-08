@@ -138,11 +138,11 @@ body {
 /* 플러스 마이너스 버튼이에요. */
 .tempoContainer p {
   margin: 1px;
-  border: 1px solid gray;
+  border: 0.1px solid gray;
   border-radius: 7px;
   color: rgb(120, 120, 120);
   cursor: pointer;
-  padding: 6px;
+  padding: 7px 10px;
   font-size: 18px;
   margin: 8px;
   transition: 0.3s ease;
@@ -155,11 +155,11 @@ body {
 
 /* 마이너스 버튼들 */
 .minusTempo p::before {
-  content: "-";
+  content: "- ";
 }
 
 .plusTempo p::before {
-  content: "+";
+  content: "+ ";
 }
 
 /* 템포 슬라이더 */
