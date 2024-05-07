@@ -34,19 +34,17 @@ class Metronome {
       this.#isPlaying = false;
       this.#changePlayBtn(this.#isPlaying);
       // 오실레이터가 일회용이라, 멈춤버튼이 눌렸을때 미리 새로 만들어놔요.
-      this.#setOscillator();
+      this.#getOscilator();
       // 정지하면 led를 처음으로 초기화해요.
       this.#initLed();
       return;
     }
 
-    // 재생버튼의 모양을 바꿔요.
     this.#isPlaying = true;
     this.#changePlayBtn();
 
     // 응답성 향상을 위해 소리를 먼저 재생 후에 인터벌을 실행해요.
-    // this.#audioContext.resume();
-    this.#setOscillator();
+    this.#getOscilator();
     this.#oscillator.start();
     this.#makeSound();
     this.#changeLed();
@@ -217,7 +215,7 @@ class Metronome {
   }
 
   // 컴포넌트들의 설정을 위한 메서드들입니다.
-  #setOscillator() {
+  #getOscilator() {
     this.#oscillator = this.#audioContext.createOscillator();
     this.#oscillator.connect(this.#audioContext.destination);
   }
