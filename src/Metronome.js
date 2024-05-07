@@ -34,19 +34,17 @@ class Metronome {
       this.#isPlaying = false;
       this.#changePlayBtn(this.#isPlaying);
       // 오실레이터가 일회용이라, 멈춤버튼이 눌렸을때 미리 새로 만들어놔요.
-      this.#setOscillator();
+      this.#getOscilator();
       // 정지하면 led를 처음으로 초기화해요.
       this.#initLed();
       return;
     }
 
-    // 재생버튼의 모양을 바꿔요.
     this.#isPlaying = true;
     this.#changePlayBtn();
 
     // 응답성 향상을 위해 소리를 먼저 재생 후에 인터벌을 실행해요.
-    // this.#audioContext.resume();
-    this.#setOscillator();
+    this.#getOscilator();
     this.#oscillator.start();
     this.#makeSound();
     this.#changeLed();
@@ -80,37 +78,47 @@ class Metronome {
   // 아래는 버튼들의 동작을 정의하고있어요.
   #setBtnListner() {
     const onMinusClick = (e) => {
-      const prevTempo = this.#tempoIndicator.valueAsNumber;
-      if (prevTempo <= 0) return;
+      // 기존 템포
+      const currTempo = this.#tempoIndicator.valueAsNumber;
+      let targetTemp = currTempo - parseInt(e.target.innerText);
 
-      // 눌린 버튼이 가진 값을 템포에서 빼요. 문자열의 빼기연산은 숫자로 변환되어 수행되어요.
-      this.#tempoIndicator.value -= e.target.innerText || e.target.parentElement.innerText;
+      // 템포는 1 이상이 유지되어야 해요.
+      if (targetTemp <= 0) targetTemp = 1;
 
-      this.#tempoSlider.value = prevTempo;
+      // 템포인디케이터의 숫자를 내려요.
+      this.#tempoIndicator.valueAsNumber = targetTemp;
+      // 템포슬라이더를 이동시켜요.
+      this.#tempoSlider.valueAsNumber = targetTemp;
 
       this.#changeTempoSign();
-      this.#playInterval();
+
+      // 메트로놈이 실행중이었을 때만 템포 변경시 메트로놈 재실행
+      if (this.#isPlaying) {
+        this.#playInterval();
+      }
     };
 
     const onPlusClick = (e) => {
-      // 눌린 버튼의 값
-      const currTempo = parseInt(e.target.innerText || e.target.parentElement.innerText);
-
       // 이전 템포
       const prevTempo = this.#tempoIndicator.valueAsNumber;
 
-      // 템포 슬라이더를 이동시켜요.
-      this.#tempoSlider.value = prevTempo;
+      // 변경하려는 템포
+      let targetTemp = prevTempo + parseInt(e.target.innerText);
 
       // 한계 템포에요.
-      if (prevTempo >= 220) return;
+      if (targetTemp >= 220) targetTemp = 220;
+
+      // 템포 슬라이더를 바뀐 값으로 이동시켜요.
+      this.#tempoSlider.valueAsNumber = targetTemp;
+      this.#tempoIndicator.valueAsNumber = targetTemp;
 
       // 빠르기말 표시기
       this.#changeTempoSign();
-      this.#playInterval();
 
-      // 템포 표시기의 숫자를 변경해요.
-      this.#tempoIndicator.valueAsNumber = currTempo === 1 ? prevTempo + 1 : prevTempo + 5;
+      // 메트로놈이 실행중일때만 변경된 템포로 메트로놈을 재실행합니다.
+      if (this.#isPlaying) {
+        this.#playInterval();
+      }
     };
 
     // 재생버튼의 리스너를 설정해요.
@@ -129,7 +137,7 @@ class Metronome {
 
   #tempoSliderListner() {
     // 템포슬라이더의 동작.
-    const defaultBehavior = () => {
+    const changeTempo = () => {
       // 템포 인디케이터에 표시되는 숫자를 바꿔요
       this.#tempoIndicator.value = this.#tempoSlider.value;
       // 소리가 재생중이라면 템포를 변경해줘요.
@@ -139,16 +147,16 @@ class Metronome {
     };
 
     this.#tempoSlider.oninput = () => {
-      defaultBehavior();
+      changeTempo();
     };
 
     this.#tempoSlider.onwheel = (e) => {
-      if (e.deltaY < 0) {
+      if (e.deltaY > 0) {
         this.#tempoSlider.valueAsNumber += 1;
       } else {
         this.#tempoSlider.value -= 1;
       }
-      defaultBehavior();
+      changeTempo();
     };
   }
 
@@ -158,7 +166,7 @@ class Metronome {
     const tempo = this.#tempoIndicator.valueAsNumber;
 
     const changeTempoSignature = (text) => {
-      this.#tempoSignIndicator.innerHTML = text;
+      this.#tempoSignIndicator.innerText = text;
     };
 
     switch (true) {
@@ -179,7 +187,7 @@ class Metronome {
 
   #changePlayBtn() {
     const PLAY_BUTTON = `<i class="fa-solid fa-play"></i>`;
-    const STOP_BUTTON = `<i class="fa-solid fa-stop" aria-hidden="true"></i>`;
+    const STOP_BUTTON = `<i id="stop"  class="fa-solid fa-stop" aria-hidden="true"></i>`;
 
     this.#playBtn.innerHTML = this.#isPlaying ? STOP_BUTTON : PLAY_BUTTON;
   }
@@ -207,7 +215,7 @@ class Metronome {
   }
 
   // 컴포넌트들의 설정을 위한 메서드들입니다.
-  #setOscillator() {
+  #getOscilator() {
     this.#oscillator = this.#audioContext.createOscillator();
     this.#oscillator.connect(this.#audioContext.destination);
   }

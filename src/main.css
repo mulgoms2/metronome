@@ -4,11 +4,15 @@ html {
 }
 
 body {
-  width: 100%;
   height: 100%;
+  width: 100%;
+
+  margin: 0;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   background-color: rgb(70, 70, 70);
 
   -webkit-user-select: none;
@@ -17,42 +21,62 @@ body {
   user-select: none;
 }
 
+/* 정지버튼 */
+#stop {
+  left: 0px;
+
+  font-size: 60px;
+}
+
+/* 메트로놈 전체  */
 .metronomeContainer {
   width: 400px;
   height: 600px;
-  background-color: rgb(30, 30, 30);
+
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  box-shadow: 1px 1px 30px grey;
+
+  background-color: rgb(30, 30, 30);
+
   border: 1px solid gray;
   border-radius: 20px;
-  box-shadow: 1px 1px 10px grey;
 }
 
-.indicator {
-  height: 400px;
+/* 상단 검정박스 전체 */
+.metronomeContainer .indicator {
   width: 100%;
-  font-size: 40px;
+  height: 400px;
+
   display: flex;
-  justify-content: space-evenly;
   align-items: center;
-  background-color: black;
+  justify-content: space-evenly;
+
   color: aquamarine;
+  font-size: 40px;
+
+  background: linear-gradient(40deg, rgb(0, 0, 0), rgb(61, 59, 59) 75%, rgb(0, 0, 0));
+
   border-radius: 20px 20px 0 0;
 }
 
-.indicator > i {
-  transition: 0.3s;
+/* led 인디케이터 */
+.metronomeContainer .indicator > i.fa {
   text-shadow: 0px 0px 10px;
+
+  transition: 0.3s;
 }
 
-.indicator > .flash {
+.indicator > i.fa.flash {
   transition: 0.3s;
   color: gold;
   text-shadow: 0px 0px 30px;
 }
 
-.bottomContainer {
+/* 하부 전체 */
+.metronomeContainer .bottomContainer {
   display: grid;
   width: 100%;
   height: 100%;
@@ -64,31 +88,33 @@ body {
   border-radius: 0 0 20px 20px;
 }
 
-.tempoContainer {
-  grid-row: 1/4;
-  grid-column: 1/4;
-
-  display: flex;
+/* 중앙부 전체 */
+.metronomeContainer .bottomContainer .tempoContainer {
   width: 97%;
   height: 80%;
 
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-content: center;
   margin-top: 5px;
-  background-color: whitesmoke;
-  border-radius: 20px;
   margin-bottom: 60px;
+
+  display: grid;
+  grid-row: 1/4;
+  grid-column: 1/4;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+
   border: 1px solid grey;
+  border-radius: 20px;
+
+  background-color: whitesmoke;
 }
 
-.tempoContainer p {
-  font-size: 20px;
-  padding: 8px;
-}
-.tempoDisplay {
-  display: flex;
+/* 템포표시기와 슬라이더 */
+.metronomeContainer .bottomContainer .tempoContainer .tempoDisplay {
   width: 180px;
+
+  grid-row: 2/3;
+  grid-column: 2/3;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -104,13 +130,16 @@ body {
 }
 
 .tempoDisplay .tempo {
-  text-align: center;
   border: none;
-  background-color: transparent;
+
   font-size: 50px;
+  text-align: center;
   color: rgba(58, 54, 54, 0.734);
-  cursor: default;
+
+  background-color: transparent;
+
   user-select: none;
+  cursor: default;
 }
 
 .tempoDisplay .tempoSlider {
@@ -123,15 +152,21 @@ body {
 
 /* 플러스 마이너스 버튼이에요. */
 .tempoContainer p {
-  margin: 1px;
-  border: 1px solid gray;
-  border-radius: 7px;
-  color: rgb(120, 120, 120);
-  cursor: pointer;
-  padding: 6px;
+  width: 45%;
+
+  margin: 10px auto;
+  padding: 7px 10px;
+
   font-size: 18px;
-  margin: 8px;
+  text-align: center;
+  color: rgb(120, 120, 120);
+
+  border-radius: 7px;
+  border: 0.1px solid gray;
+
   transition: 0.3s ease;
+  box-sizing: border-box;
+  cursor: pointer;
 }
 
 .tempoContainer p:hover {
@@ -139,16 +174,39 @@ body {
   background-color: darkgrey;
 }
 
+/* 마이너스 버튼들 */
+.minusTempo {
+  grid-row: 2/3;
+  grid-column: 1/2;
+}
+
+.minusTempo p::before {
+  content: "- ";
+}
+
+.plusTempo {
+  grid-row: 2/3;
+  grid-column: 3/4;
+}
+
+.plusTempo p::before {
+  content: "+ ";
+}
+
 /* 템포 슬라이더 */
 input[type="range"] {
-  appearance: none;
-  padding: 0px;
-  border-radius: 10px;
-  margin: 8px;
   height: 6px; /* 슬라이더 두께 */
-  background-color: rgb(228, 228, 228); /* 슬라이더 색상 */
+
+  margin: 8px;
+  padding: 0px;
+
+  appearance: none;
   accent-color: rgb(98, 165, 150); /* 슬라이더 헤드 */
   outline: none;
+
+  background-color: rgb(228, 228, 228); /* 슬라이더 색상 */
+
+  border-radius: 10px;
 
   cursor: pointer;
   transition: 0.3s ease;
@@ -161,12 +219,15 @@ input[type="range"]:hover {
 }
 
 #horizon {
-  z-index: 1;
+  grid-row: 3/4;
+  grid-column: 1/4;
   width: 87%;
-  position: relative;
 
-  opacity: 0.5;
-  top: 34px;
+  position: relative;
+  border: none;
+  border-top: 0.1px solid black;
+  opacity: 0.3;
+  top: 22px;
 }
 
 .play {
